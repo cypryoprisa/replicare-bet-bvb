@@ -3,9 +3,9 @@ import sys
 import logging
 import argparse
 
-import portfolio
-import crawler_bvb
-import balance_stocks
+from src import portfolio
+from src import crawler_bvb
+from src import balance_stocks
 
 def main():
     logging.basicConfig(
@@ -42,7 +42,7 @@ def main():
                     script-ul va sugera cumpărarea unui simbol doar dacă se atinge sau depășește comisionul minim""")
     parser.add_argument("-f", "--file",
         default = "portofoliu.csv",
-        help = "numele fișierului csv din care se vor citi deținerile curenteș valoarea implicită este 'portofoliu.csv'")
+        help = "numele fișierului csv din care se vor citi deținerile curente; valoarea implicită este 'portofoliu.csv'")
 
     args = parser.parse_args()
 
@@ -62,7 +62,6 @@ def main():
     if not balance_stocks.balanceStocks(p, args.sum, args.trading_fee / 100, args.min_fee):
         return
     p.display(args.trading_fee / 100)
-    
 
 if __name__ == "__main__":
     main()

@@ -3,8 +3,7 @@ import math
 import itertools
 import heapq
 
-import portfolio
-
+from src import portfolio
 
 class ProgressBar:
     def __init__(self, maxVal, fillChar="#", nrElts=32):
@@ -79,5 +78,4 @@ def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float,
     for symbol, value in bestCount.items():
         s = p.get(symbol)
         s.count = s.initialCount + value
-
     return True
