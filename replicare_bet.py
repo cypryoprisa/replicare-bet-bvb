@@ -5,6 +5,7 @@ import argparse
 
 import portfolio
 import crawler_bvb
+import balance_stocks
 
 def main():
     logging.basicConfig(
@@ -30,11 +31,11 @@ def main():
     parser.add_argument("-w", "--no-weights",
         action = "store_true",
         help = "nu se va încerca obținerea ponderilor în BET de pe internet, se vor folosi ponderile din fișierul csv")
-    parser.add_argument("-c", "--comission", 
+    parser.add_argument("-t", "--trading-fee", 
         type = float,
         default = 0.65,
         help = "comisionul broker-ului, în procente; valoarea implicită este 0.65")
-    parser.add_argument("-m", "--min-comission", 
+    parser.add_argument("-m", "--min-fee", 
         type = float,
         default = 1.9,
         help = """comisionul minim al broker-ului, în RON; valoarea implicită este 1.9; 
@@ -49,8 +50,8 @@ def main():
     if not p.readStocks(args.file):
         return
     print(f"Suma de investit: {args.sum}")
-    print(f"Comision broker: {args.comission}%")
-    print(f"Comision minim broker: {args.min_comission}")
+    print(f"Comision broker: {args.trading_fee}%")
+    print(f"Comision minim broker: {args.min_fee}")
     print()
     if not (args.no_prices and args.no_weights):
         crawlData = crawler_bvb.crawl()
@@ -58,7 +59,9 @@ def main():
             p.updatePrice(crawlData)
         if not args.no_weights:
             p.updateWeight(crawlData)
-    p.display()
+    if not balance_stocks.balanceStocks(p, args.sum, args.trading_fee / 100, args.min_fee):
+        return
+    p.display(args.trading_fee / 100)
     
 
 if __name__ == "__main__":
