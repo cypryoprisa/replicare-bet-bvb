@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import logging
+import json
+import os
+import time
 import urllib.request
 import html.parser
 
 BVB_URL = "https://m.bvb.ro/FinancialInstruments/Indices/IndicesProfiles.aspx?i=BET"
+CRAWLER_CACHE = "crawler_bvb_cache.json"
 
 TABLE_ID = "gvTD"
 COL_SYMBOL = "Simbol"
@@ -58,14 +62,18 @@ class BvbParser(html.parser.HTMLParser):
             self.state = STATE_TBODY
 
 def crawl():
+    crtTs = time.time()
+    if os.path.isfile(CRAWLER_CACHE):
+        with open(CRAWLER_CACHE) as fin:
+            cache = json.load(fin)
+            if "ts" in cache and "data" in cache and cache["ts"] + 300 > crtTs:
+                logging.info("loading BVB data from cache")
+                return cache["data"]
     with urllib.request.urlopen(BVB_URL) as response:
         content = response.read()
         parser = BvbParser()
         parser.feed(content.decode())
         parser.close()
-
-        # print(parser.columns)
-        # print(parser.rows)
 
         if len(parser.columns) < 3 or len(parser.rows) < 5:
             logging.error(f"Nu s-au putut obtine date de la url-ul '{BVB_URL}'")
@@ -110,6 +118,8 @@ def crawl():
             except ValueError:
                 logging.error(f"Ponderea {weight} pentru simbolul {weight} nu este un numar valid")
             result[symbol] = {"price": price, "weight": weight}
+        with open(CRAWLER_CACHE, "w") as fout:
+            json.dump({"ts": crtTs, "data": result}, fout)
         return result
     
 
