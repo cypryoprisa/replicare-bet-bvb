@@ -57,14 +57,14 @@ def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float,
             continue
         h = []
         for s in subset:
-            if totalInvested + s.price < investedSum:
-                heapq.heappush(h, (relativeError(s, count, portfolioValue, investedSum), s))
+            heapq.heappush(h, (relativeError(s, count, portfolioValue, investedSum), s))
         while len(h) > 0:
             _, s = heapq.heappop(h)
+            if totalInvested + s.price >= investedSum:
+                continue
             count[s.symbol] += 1
             totalInvested += s.price
-            if totalInvested + s.price < investedSum:
-                heapq.heappush(h, (relativeError(s, count, portfolioValue, investedSum), s))
+            heapq.heappush(h, (relativeError(s, count, portfolioValue, investedSum), s))
         error = 0.0
         for s in p.stocks:
             weight = s.price * (s.initialCount + count.get(s.symbol, 0)) / (portfolioValue + totalInvested)
