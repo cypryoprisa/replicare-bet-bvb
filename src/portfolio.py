@@ -69,7 +69,7 @@ class Portfolio:
     def get(self, symbol):
         return self._stocksDict.get(symbol, None)
 
-    def display(self, fee):
+    def display(self, tradingFee, fixedFee):
         COLUMNS = ["Simbol", "Recomandare", "Cantitate", "Pret", "Pondere BET (%)", "Pondere BET norm. (%)", 
                     "Pondere detinuta (%)", "Diferenta (%)", "Diferenta relativa (%)"]
         data = []
@@ -122,7 +122,8 @@ class Portfolio:
         for row in data:
             print("|" + "|".join("%*s" % (size, col) for size, col in zip(SIZES, row)) + "|")
         print(HLINE)
-        print(f"Suma totala cheltuita: {investedValue:1.2f} + comision {investedValue*fee:1.2f}")
+        fee = investedValue * tradingFee + len([s for s in self.stocks if s.count > s.initialCount]) * fixedFee
+        print(f"Suma totala cheltuita: {investedValue:1.2f} + comision {fee:1.2f}")
 
     def updatePrice(self, crawlData):
         for s in self.stocks:

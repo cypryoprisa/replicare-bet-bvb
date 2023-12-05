@@ -25,11 +25,11 @@ def relativeError(s, count, portfolioValue, investedSum):
     weight = s.price * (s.initialCount + count[s.symbol]) / (portfolioValue + investedSum)
     return (weight - s.normWeight) / s.normWeight
 
-def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float, minFee: float):
-    if investedSum * tradingFee < minFee:
+def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float, fixedFee: float, minTransaction: float):
+    if investedSum < minTransaction:
         logging.error("Suma investita este prea mica")
         return False
-    investedSum = investedSum * (1.0 - tradingFee)
+    origInvestedSum = investedSum
     totalWeight = 0.0
     portfolioValue = 0.0
     for s in p.stocks:
@@ -41,7 +41,7 @@ def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float,
             return False
         totalWeight += s.weight
         portfolioValue += s.price * s.initialCount
-    minCount = {s.symbol: math.ceil(minFee / tradingFee / s.price) for s in p.stocks}
+    minCount = {s.symbol: math.ceil((minTransaction - fixedFee) / (1 + tradingFee) /  s.price) for s in p.stocks}
     for s in p.stocks:
         s.normWeight = s.weight / totalWeight
 
@@ -51,6 +51,7 @@ def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float,
     for subset in itertools.chain.from_iterable(itertools.combinations(p.stocks, k) for k in range(1, len(p.stocks) + 1)):
         bar.next()
         count = {s.symbol: minCount[s.symbol] for s in subset}
+        investedSum = (origInvestedSum - fixedFee * len(subset)) / (1.0 + tradingFee)
         totalInvested = sum(p.get(symbol).price * cnt for symbol, cnt in count.items())
         if totalInvested >= investedSum:
             continue

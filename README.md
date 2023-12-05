@@ -18,9 +18,9 @@ Exemplu:
 
 ```
 $ python3 replicare_bet.py 5000
-Suma de investit: 5000.0
-Comision broker: 0.65%
-Comision minim broker: 1.9
+Suma de investit: 2500.0
+Comision broker: 0.43% + 1.5 RON
+Suma minima / tranzactie: 500 RON
 
 [################################] 1023 / 1023
 +-------+------------+----------+------+----------------+----------------------+---------------------+---------------+-----------------------+
@@ -45,7 +45,8 @@ Argumentele opționale ale programului permit să specificați:
 * `-f` numele fișierului csv din care se vor citi deținerile curente; valoarea implicită este `portofoliu.csv`
 * `-p` nu se va încerca obținerea prețurilor de pe internet, se vor folosi cele din fișierul csv
 * `-w` nu se va încerca obținerea ponderilor în BET de pe internet, se vor folosi ponderile din fișierul csv
-* `-t` comisionul broker-ului, în procente; valoarea implicită este 0.65%
-* `-m` comisionul minim al broker-ului, în RON; valoarea implicită este 1.9; script-ul va sugera cumpărarea unui simbol doar dacă se atinge sau depășește comisionul minim
+* `-t` comisionul broker-ului, în procente; valoarea implicită este 0.43%
+* `-x` comisionul fix al broker-ului, per tranzacție; valoarea implicită este 1.5 RON
+* `-m` suma minimă pentru o tranzacție, în RON; valoarea implicită este 500; script-ul va sugera cumpărarea unui simbol doar dacă se atinge sau depășește suma minimă
 
-La un comision al broker-ului de 0.65%, minim 1.9 RON, achiziția minimă este de 1.9 / 0.0065 = 292.3 RON. De exemplu, dacă o acțiune costă 50 RON bucata, programul fie vă va propune să cumpărați 6 sau mai multe, fie nu va recomanda cumpărarea acestei acțiuni.
+La o sumă minimă per tranzacție de 500 RON, pentru o acțiune care costă 50 RON bucata, programul fie vă va propune să cumpărați 10 sau mai multe, fie nu va recomanda cumpărarea acestei acțiuni.

@@ -33,13 +33,17 @@ def main():
         help = "nu se va încerca obținerea ponderilor în BET de pe internet, se vor folosi ponderile din fișierul csv")
     parser.add_argument("-t", "--trading-fee", 
         type = float,
-        default = 0.65,
-        help = "comisionul broker-ului, în procente; valoarea implicită este 0.65")
-    parser.add_argument("-m", "--min-fee", 
+        default = 0.43,
+        help = "comisionul broker-ului, în procente; valoarea implicită este 0.43")
+    parser.add_argument("-x", "--fixed-fee", 
         type = float,
-        default = 1.9,
-        help = """comisionul minim al broker-ului, în RON; valoarea implicită este 1.9; 
-                    script-ul va sugera cumpărarea unui simbol doar dacă se atinge sau depășește comisionul minim""")
+        default = 1.5,
+        help = "comisionul fix al broker-ului, în RON; valoarea implicită este 1.5")
+    parser.add_argument("-m", "--min-transaction", 
+        type = float,
+        default = 500,
+        help = """suma minima pentru o tranzactie; valoarea implicită este 500; 
+                    script-ul va sugera cumpărarea unui simbol doar dacă se atinge sau depășește aceasta suma""")
     parser.add_argument("-f", "--file",
         default = "portofoliu.csv",
         help = "numele fișierului csv din care se vor citi deținerile curente; valoarea implicită este 'portofoliu.csv'")
@@ -50,8 +54,8 @@ def main():
     if not p.readStocks(args.file):
         return
     print(f"Suma de investit: {args.sum}")
-    print(f"Comision broker: {args.trading_fee}%")
-    print(f"Comision minim broker: {args.min_fee}")
+    print(f"Comision broker: {args.trading_fee}% + {args.fixed_fee} RON")
+    print(f"Suma minima / tranzactie: {args.min_transaction} RON")
     print()
     if not (args.no_prices and args.no_weights):
         crawlData = crawler_bvb.crawl()
@@ -59,9 +63,9 @@ def main():
             p.updatePrice(crawlData)
         if not args.no_weights:
             p.updateWeight(crawlData)
-    if not balance_stocks.balanceStocks(p, args.sum, args.trading_fee / 100, args.min_fee):
+    if not balance_stocks.balanceStocks(p, args.sum, args.trading_fee / 100, args.fixed_fee, args.min_transaction):
         return
-    p.display(args.trading_fee / 100)
+    p.display(args.trading_fee / 100, args.fixed_fee)
 
 if __name__ == "__main__":
     main()
