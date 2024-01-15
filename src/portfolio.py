@@ -55,7 +55,7 @@ class Portfolio:
                             return False
                     if len(row[Portfolio.COL_WEIGHT].strip()) > 0:
                         try:
-                            s.price = float(row[Portfolio.COL_WEIGHT].strip())
+                            s.weight = float(row[Portfolio.COL_WEIGHT].strip())
                         except ValueError:
                             logging.error(f"Coloana '{Portfolio.COL_WEIGHT}' trebuie sa contina numere reale(separatorul este '.'). Valoarea '{row[Portfolio.COL_WEIGHT]}' este invalida.")
                             return False
