@@ -78,5 +78,6 @@ def balanceStocks(p: portfolio.Portfolio, investedSum: float, tradingFee: float,
         return False
     for symbol, value in bestCount.items():
         s = p.get(symbol)
-        s.count = s.initialCount + value
+        if s:
+            s.count = s.initialCount + value
     return True

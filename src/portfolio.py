@@ -1,20 +1,25 @@
 import os
 import csv
 import logging
+from src.crawler_bvb import CrawlResult
 
 class Stock:
-    def __init__(self, symbol):
+    def __init__(self, symbol: str):
         self.symbol = symbol
         self.initialCount = 0
         self.count = 0
-        self.price = None
-        self.weight = None
-        self.normWeight = None
+        self.price = 0.0
+        self.weight = 0.0
+        self.normWeight = 0.0
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Stock"):
+        if self.normWeight is None or other.normWeight is None:
+            return True
         return self.normWeight > other.normWeight
     
-    def __le__(self, other):
+    def __le__(self, other: "Stock"):
+        if self.normWeight is None or other.normWeight is None:
+            return True
         return self.normWeight >= other.normWeight
 
 class Portfolio:
@@ -24,10 +29,10 @@ class Portfolio:
     COL_WEIGHT = "Pondere"
 
     def __init__(self):
-        self.stocks = []
-        self._stocksDict = {}
+        self.stocks: list[Stock] = []
+        self._stocksDict: dict[str, Stock] = {}
 
-    def readStocks(self, fpath):
+    def readStocks(self, fpath: str):
         if not os.path.isfile(fpath):
             logging.error(f"Fisierul cu portofoliul '{fpath}' nu exista")
             return False
@@ -125,12 +130,12 @@ class Portfolio:
         fee = investedValue * tradingFee + len([s for s in self.stocks if s.count > s.initialCount]) * fixedFee
         print(f"Suma totala cheltuita: {investedValue:1.2f} + comision {fee:1.2f}")
 
-    def updatePrice(self, crawlData):
+    def updatePrice(self, crawlData: CrawlResult):
         for s in self.stocks:
             if s.symbol in crawlData:
                 s.price = crawlData[s.symbol]["price"]
 
-    def updateWeight(self, crawlData):
+    def updateWeight(self, crawlData: CrawlResult):
         for s in self.stocks:
             if s.symbol in crawlData:
                 s.weight = crawlData[s.symbol]["weight"]

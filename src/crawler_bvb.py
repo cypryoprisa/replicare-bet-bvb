@@ -5,13 +5,14 @@ import os
 import time
 import urllib.request
 import html.parser
+from typing import TypeAlias
 
 BVB_URL = "https://m.bvb.ro/FinancialInstruments/Indices/IndicesProfiles.aspx?i=BET"
 CRAWLER_CACHE = "crawler_bvb_cache.json"
 
-TABLE_ID = "gvTD"
+TABLE_ID = "gvC"
 COL_SYMBOL = "Simbol"
-COL_PRICE = "Pret"
+COL_PRICE = "Pret ref."
 COL_WEIGHT = "Pondere (%)"
 
 STATE_INIT = 0
@@ -20,6 +21,8 @@ STATE_THEAD = 2
 STATE_TH = 3
 STATE_TBODY = 4
 STATE_TD = 5
+
+CrawlResult: TypeAlias = dict[str, dict[str, float]]
 
 class BvbParser(html.parser.HTMLParser):
     def __init__(self):
@@ -61,7 +64,7 @@ class BvbParser(html.parser.HTMLParser):
                 self.rows[-1].append(data.strip())
             self.state = STATE_TBODY
 
-def crawl():
+def crawl() -> CrawlResult | None:
     crtTs = time.time()
     if os.path.isfile(CRAWLER_CACHE):
         with open(CRAWLER_CACHE) as fin:
@@ -71,7 +74,7 @@ def crawl():
                 return cache["data"]
     headers = {
         "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                       "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36")
+                       "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36")
     }
     request = urllib.request.Request(BVB_URL, headers=headers)
     with urllib.request.urlopen(request) as response:
@@ -105,7 +108,7 @@ def crawl():
             logging.error(f"Nu s-a gasit coloana {COL_WEIGHT}")
             return None
 
-        result = {}
+        result: CrawlResult = {}
         for row in parser.rows:
             if len(row) < max(colSymbol, colPrice, colWeight):
                 logging.error("Tabelul cu datele nu are formatul corect")

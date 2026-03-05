@@ -59,6 +59,9 @@ def main():
     print()
     if not (args.no_prices and args.no_weights):
         crawlData = crawler_bvb.crawl()
+        if not crawlData:
+            logging.error("Operatia de crawling a esuat")
+            return
         if not args.no_prices:
             p.updatePrice(crawlData)
         if not args.no_weights:
